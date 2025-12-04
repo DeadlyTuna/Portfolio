@@ -121,7 +121,9 @@ function Satellite({
       opacity: 0.4,
       linewidth: 1
     });
-    return new THREE.Line(geometry, material);
+    const l = new THREE.Line(geometry, material);
+    l.frustumCulled = false; // Important: prevent culling as geometry grows
+    return l;
   });
 
   // Cleanup on unmount
