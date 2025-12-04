@@ -108,10 +108,31 @@ function Satellite({
   size?: number;
 }) {
   const satelliteRef = useRef<THREE.Mesh>(null);
-  const trailRef = useRef<THREE.Line>(null);
   const angleRef = useRef(orbitAngle);
   const trailPoints = useRef<THREE.Vector3[]>([]);
   const maxTrailPoints = 100; // Number of points in the trail
+
+  // Create the line instance once
+  const [line] = useState(() => {
+    const geometry = new THREE.BufferGeometry();
+    const material = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.4,
+      linewidth: 1
+    });
+    return new THREE.Line(geometry, material);
+  });
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      line.geometry.dispose();
+      if (line.material instanceof THREE.Material) {
+        line.material.dispose();
+      }
+    };
+  }, [line]);
 
   useFrame((state, delta) => {
     // Update angle for orbital motion
@@ -133,10 +154,8 @@ function Satellite({
     }
 
     // Update trail geometry
-    if (trailRef.current && trailPoints.current.length > 1) {
-      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints.current);
-      trailRef.current.geometry.dispose();
-      trailRef.current.geometry = geometry;
+    if (trailPoints.current.length > 1) {
+      line.geometry.setFromPoints(trailPoints.current);
     }
   });
 
@@ -155,15 +174,7 @@ function Satellite({
       </mesh>
 
       {/* Contrail */}
-      <line ref={trailRef}>
-        <bufferGeometry />
-        <lineBasicMaterial
-          color="#ffffff"
-          transparent
-          opacity={0.4}
-          linewidth={1}
-        />
-      </line>
+      <primitive object={line} />
     </>
   );
 }
@@ -444,8 +455,8 @@ function EarthScene() {
         >
           <div
             className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 backdrop-blur-md border whitespace-nowrap ${hovered === section.name
-                ? "bg-purple-500/30 border-purple-300 text-white scale-110 shadow-[0_0_20px_rgba(102,126,234,0.6)]"
-                : "bg-black/50 border-white/30 text-gray-300 hover:border-purple-400/50 hover:bg-purple-900/20"
+              ? "bg-purple-500/30 border-purple-300 text-white scale-110 shadow-[0_0_20px_rgba(102,126,234,0.6)]"
+              : "bg-black/50 border-white/30 text-gray-300 hover:border-purple-400/50 hover:bg-purple-900/20"
               }`}
             onMouseEnter={() => setHovered(section.name)}
             onMouseLeave={() => setHovered(null)}
