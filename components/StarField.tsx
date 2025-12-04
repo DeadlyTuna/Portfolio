@@ -14,14 +14,14 @@ const sections = [
 
 function StarBackground() {
   const ref = useRef<THREE.Group>(null);
-  
+
   useFrame((state, delta) => {
     if (ref.current) {
       ref.current.rotation.x -= delta / 10;
       ref.current.rotation.y -= delta / 15;
     }
   });
-  
+
   return (
     <group ref={ref} rotation={[0, 0, Math.PI / 4]}>
       <Stars
@@ -44,33 +44,33 @@ function ShootingStar({ onComplete }: { onComplete: () => void }) {
     const startY = (Math.random() - 0.5) * 100;
     const startZ = (Math.random() - 0.5) * 50;
     const start = new THREE.Vector3(startX, startY, startZ);
-    
+
     const direction = new THREE.Vector3(
       (Math.random() - 0.5),
       (Math.random() - 0.5),
       (Math.random() - 0.5)
     ).normalize();
-    
+
     return { start, direction };
   });
-  
+
   useFrame((state, delta) => {
     if (mesh.current) {
       mesh.current.position.add(data.direction.clone().multiplyScalar(delta * 40));
-      
+
       if (mesh.current.position.distanceTo(data.start) > 100) {
         onComplete();
       }
     }
   });
-  
+
   useEffect(() => {
     if (mesh.current) {
       const target = mesh.current.position.clone().add(data.direction);
       mesh.current.lookAt(target);
     }
   }, [data.direction]);
-  
+
   return (
     <mesh ref={mesh} position={data.start}>
       <boxGeometry args={[0.1, 0.1, 5]} />
@@ -81,7 +81,7 @@ function ShootingStar({ onComplete }: { onComplete: () => void }) {
 
 function ShootingStarController() {
   const [active, setActive] = useState(false);
-  
+
   useEffect(() => {
     if (!active) {
       const delay = Math.random() * 3000 + 2000;
@@ -91,8 +91,81 @@ function ShootingStarController() {
       return () => clearTimeout(timeout);
     }
   }, [active]);
-  
+
   return active ? <ShootingStar onComplete={() => setActive(false)} /> : null;
+}
+
+// Satellite component that orbits around Earth
+function Satellite({
+  radius,
+  speed,
+  orbitAngle,
+  size = 0.08
+}: {
+  radius: number;
+  speed: number;
+  orbitAngle: number;
+  size?: number;
+}) {
+  const satelliteRef = useRef<THREE.Mesh>(null);
+  const trailRef = useRef<THREE.Line>(null);
+  const angleRef = useRef(orbitAngle);
+  const trailPoints = useRef<THREE.Vector3[]>([]);
+  const maxTrailPoints = 100; // Number of points in the trail
+
+  useFrame((state, delta) => {
+    // Update angle for orbital motion
+    angleRef.current += delta * speed;
+
+    // Calculate satellite position
+    const x = Math.cos(angleRef.current) * radius;
+    const z = Math.sin(angleRef.current) * radius;
+    const y = Math.sin(angleRef.current * 2) * 0.5; // Add some vertical movement
+
+    if (satelliteRef.current) {
+      satelliteRef.current.position.set(x, y, z);
+    }
+
+    // Update trail
+    trailPoints.current.push(new THREE.Vector3(x, y, z));
+    if (trailPoints.current.length > maxTrailPoints) {
+      trailPoints.current.shift();
+    }
+
+    // Update trail geometry
+    if (trailRef.current && trailPoints.current.length > 1) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints.current);
+      trailRef.current.geometry.dispose();
+      trailRef.current.geometry = geometry;
+    }
+  });
+
+  return (
+    <>
+      {/* Satellite body */}
+      <mesh ref={satelliteRef}>
+        <sphereGeometry args={[size, 16, 16]} />
+        <meshStandardMaterial
+          color="#e0e0e0"
+          metalness={0.8}
+          roughness={0.2}
+          emissive="#ffffff"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+
+      {/* Contrail */}
+      <line ref={trailRef}>
+        <bufferGeometry />
+        <lineBasicMaterial
+          color="#ffffff"
+          transparent
+          opacity={0.4}
+          linewidth={1}
+        />
+      </line>
+    </>
+  );
 }
 
 function EarthScene() {
@@ -104,7 +177,7 @@ function EarthScene() {
 
   useEffect(() => {
     // No mouse interaction needed anymore
-    return () => {};
+    return () => { };
   }, []);
 
   useFrame((state, delta) => {
@@ -112,11 +185,11 @@ function EarthScene() {
     if (earthRotationGroupRef.current) {
       earthRotationGroupRef.current.rotation.y += delta * rotationSpeedRef.current;
     }
-    
+
     if (groupRef.current) {
       const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 1000;
       const scroll = typeof window !== 'undefined' ? window.scrollY : 0;
-      
+
       // Define section boundaries (each section is 1 viewport height)
       const sections = {
         hero: { start: 0, end: windowHeight },
@@ -127,12 +200,12 @@ function EarthScene() {
         certificates: { start: windowHeight * 5, end: windowHeight * 6 },
         contact: { start: windowHeight * 6, end: windowHeight * 7 },
       };
-      
+
       let targetY: number = 0;
       let targetX: number = 8;
       let targetZ: number = 0;
       let targetScale: number = 1;
-      
+
       // Hero section - right side, half visible
       if (scroll < sections.about.start) {
         targetX = 8;
@@ -195,19 +268,19 @@ function EarthScene() {
         targetY,
         0.05
       );
-      
+
       groupRef.current.position.x = THREE.MathUtils.lerp(
         groupRef.current.position.x,
         targetX,
         0.05
       );
-      
+
       groupRef.current.position.z = THREE.MathUtils.lerp(
         groupRef.current.position.z,
         targetZ,
         0.05
       );
-      
+
       groupRef.current.scale.setScalar(
         THREE.MathUtils.lerp(
           groupRef.current.scale.x,
@@ -236,54 +309,54 @@ function EarthScene() {
             roughness={0.8}
             metalness={0.2}
           >
-            <primitive 
-              attach="map" 
+            <primitive
+              attach="map"
               object={(() => {
                 const canvas = document.createElement('canvas');
                 canvas.width = 2048;
                 canvas.height = 1024;
                 const ctx = canvas.getContext('2d')!;
-                
+
                 // Ocean base
                 ctx.fillStyle = '#0c4a6e';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+
                 // Draw continents (simplified approximations)
                 ctx.fillStyle = '#166534';
-                
+
                 // North America
                 ctx.beginPath();
                 ctx.ellipse(300, 350, 200, 180, 0.3, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 // South America
                 ctx.beginPath();
                 ctx.ellipse(400, 650, 120, 200, 0, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 // Europe
                 ctx.beginPath();
                 ctx.ellipse(1000, 300, 150, 100, 0, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 // Africa
                 ctx.beginPath();
                 ctx.ellipse(1100, 550, 180, 250, 0.2, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 // Asia
                 ctx.beginPath();
                 ctx.ellipse(1500, 350, 300, 200, 0, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 // Australia
                 ctx.beginPath();
                 ctx.ellipse(1650, 750, 120, 100, 0, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 // Antarctica
                 ctx.fillRect(0, 900, canvas.width, 124);
-                
+
                 // Add some detail - mountains/forests (darker green)
                 ctx.fillStyle = '#14532d';
                 for (let i = 0; i < 100; i++) {
@@ -293,11 +366,11 @@ function EarthScene() {
                   ctx.arc(x, y, Math.random() * 20 + 5, 0, Math.PI * 2);
                   ctx.fill();
                 }
-                
+
                 // Ice caps
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, 80); // North pole
-                
+
                 // Clouds layer (semi-transparent)
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 for (let i = 0; i < 50; i++) {
@@ -307,7 +380,7 @@ function EarthScene() {
                   ctx.ellipse(x, y, Math.random() * 60 + 30, Math.random() * 30 + 15, Math.random() * Math.PI, 0, Math.PI * 2);
                   ctx.fill();
                 }
-                
+
                 const texture = new THREE.CanvasTexture(canvas);
                 texture.needsUpdate = true;
                 return texture;
@@ -315,12 +388,12 @@ function EarthScene() {
             />
           </meshStandardMaterial>
         </Sphere>
-        
+
         {/* Atmosphere glow */}
         <Sphere args={[4.15, 64, 64]}>
-          <meshBasicMaterial 
-            color="#4299e1" 
-            transparent 
+          <meshBasicMaterial
+            color="#4299e1"
+            transparent
             opacity={0.15}
             side={THREE.BackSide}
           />
@@ -333,17 +406,17 @@ function EarthScene() {
             opacity={0.4}
             color="#ffffff"
           >
-            <primitive 
-              attach="map" 
+            <primitive
+              attach="map"
               object={(() => {
                 const canvas = document.createElement('canvas');
                 canvas.width = 1024;
                 canvas.height = 512;
                 const ctx = canvas.getContext('2d')!;
-                
+
                 ctx.fillStyle = 'rgba(0, 0, 0, 0)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 for (let i = 0; i < 40; i++) {
                   const x = Math.random() * canvas.width;
@@ -352,7 +425,7 @@ function EarthScene() {
                   ctx.ellipse(x, y, Math.random() * 80 + 40, Math.random() * 40 + 20, Math.random() * Math.PI, 0, Math.PI * 2);
                   ctx.fill();
                 }
-                
+
                 const texture = new THREE.CanvasTexture(canvas);
                 texture.needsUpdate = true;
                 return texture;
@@ -370,11 +443,10 @@ function EarthScene() {
           distanceFactor={8}
         >
           <div
-            className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 backdrop-blur-md border whitespace-nowrap ${
-              hovered === section.name
+            className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 backdrop-blur-md border whitespace-nowrap ${hovered === section.name
                 ? "bg-purple-500/30 border-purple-300 text-white scale-110 shadow-[0_0_20px_rgba(102,126,234,0.6)]"
                 : "bg-black/50 border-white/30 text-gray-300 hover:border-purple-400/50 hover:bg-purple-900/20"
-            }`}
+              }`}
             onMouseEnter={() => setHovered(section.name)}
             onMouseLeave={() => setHovered(null)}
             onClick={() => handleSectionClick(section.id)}
@@ -392,18 +464,24 @@ function EarthScene() {
           new THREE.Vector3(...section.position)
         ];
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        
+
         return (
           <primitive key={`line-${i}`} object={new THREE.Line(
             geometry,
-            new THREE.LineBasicMaterial({ 
-              color: 0x667eea, 
-              transparent: true, 
-              opacity: 0.2 
+            new THREE.LineBasicMaterial({
+              color: 0x667eea,
+              transparent: true,
+              opacity: 0.2
             })
           )} />
         );
       })}
+
+      {/* Satellites orbiting Earth */}
+      <Satellite radius={5} speed={0.3} orbitAngle={0} size={0.08} />
+      <Satellite radius={5.5} speed={0.25} orbitAngle={Math.PI / 2} size={0.07} />
+      <Satellite radius={6} speed={0.35} orbitAngle={Math.PI} size={0.09} />
+      <Satellite radius={5.8} speed={0.28} orbitAngle={Math.PI * 1.5} size={0.08} />
 
       <pointLight position={[0, 0, 0]} intensity={1} color="#667eea" />
     </group>
@@ -413,7 +491,7 @@ function EarthScene() {
 export default function StarField() {
   return (
     <div className="fixed inset-0 -z-10 pointer-events-none">
-      <Canvas 
+      <Canvas
         camera={{ position: [0, 0, 10], fov: 50 }}
         className="pointer-events-auto"
       >

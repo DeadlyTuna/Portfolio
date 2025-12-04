@@ -67,24 +67,55 @@ const allCsProjects: Project[] = [
 const ProjectGrid = ({ projects, showAll }: ProjectGridProps) => {
   const displayProjects = showAll ? projects : projects.slice(0, 4);
   return (
-    <div className="grid md:grid-cols-2 gap-8">
+    <div className="grid md:grid-cols-2 gap-6">
       {displayProjects.map((project) => (
-        <Card key={project.title} className="glass hover:scale-105 transition-transform duration-300 overflow-hidden group">
-          <div className={`h-2 ${project.gradient}`} />
-          <CardHeader>
-            <CardTitle className="text-2xl">{project.title}</CardTitle>
-            <CardDescription className="text-base">{project.description}</CardDescription>
+        <Card
+          key={project.title}
+          className="group relative glass border-white/5 hover:border-white/20 hover:shadow-[0_0_30px_rgba(102,126,234,0.15)] transition-all duration-500 overflow-hidden"
+        >
+          {/* Subtle gradient accent line */}
+          <div className={`absolute top-0 left-0 right-0 h-[1px] ${project.gradient} opacity-50`} />
+
+          <CardHeader className="pb-3">
+            <CardTitle className="text-xl font-semibold group-hover:text-purple-300 transition-colors">
+              {project.title}
+            </CardTitle>
+            <CardDescription className="text-sm leading-relaxed text-muted-foreground/90">
+              {project.description}
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
+
+          <CardContent className="pb-3">
+            <div className="flex flex-wrap gap-1.5">
               {project.tech.map((tech: string) => (
-                <Badge key={tech} variant="secondary" className="text-xs">{tech}</Badge>
+                <Badge
+                  key={tech}
+                  variant="secondary"
+                  className="text-xs px-2 py-0.5 bg-white/5 border-white/10 hover:bg-white/10 transition-colors"
+                >
+                  {tech}
+                </Badge>
               ))}
             </div>
           </CardContent>
-          <CardFooter className="gap-2">
-            <Button variant="outline" size="sm" asChild><Link href="#" className="flex-1">View Demo</Link></Button>
-            <Button variant="outline" size="sm" asChild><Link href="#" className="flex-1">GitHub</Link></Button>
+
+          <CardFooter className="gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="flex-1 text-xs border-white/10 hover:border-purple-400/40 hover:bg-purple-500/10"
+            >
+              <Link href="#">View Demo</Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="flex-1 text-xs border-white/10 hover:border-purple-400/40 hover:bg-purple-500/10"
+            >
+              <Link href="#">GitHub</Link>
+            </Button>
           </CardFooter>
         </Card>
       ))}
