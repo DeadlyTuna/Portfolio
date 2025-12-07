@@ -7,18 +7,11 @@ import { useRef } from "react";
 
 const educationTimeline = [
     {
-        year: "2023",
-        degree: "Class 10",
-        institution: "Greenwood Highschool",
-        percentage: "91%",
-        description: "Completed secondary education with distinction",
-    },
-    {
-        year: "2025",
-        degree: "Class 12",
-        institution: "Allen School",
-        percentage: "78%",
-        description: "Completed higher secondary education",
+        year: "2025 - Present",
+        degree: "BS in Data Science & Applications (Online)",
+        institution: "IIT Madras",
+        percentage: "Pursuing",
+        description: "Pursuing online degree program in Data Science",
     },
     {
         year: "2025 - Present",
@@ -28,11 +21,18 @@ const educationTimeline = [
         description: "Currently pursuing undergraduate degree (First Semester)",
     },
     {
-        year: "2025 - Present",
-        degree: "BS in Data Science & Applications (Online)",
-        institution: "IIT Madras",
-        percentage: "Pursuing",
-        description: "Pursuing online degree program in Data Science",
+        year: "2025",
+        degree: "Class 12",
+        institution: "Allen School",
+        percentage: "78%",
+        description: "Completed higher secondary education",
+    },
+    {
+        year: "2023",
+        degree: "Class 10",
+        institution: "Greenwood Highschool",
+        percentage: "91%",
+        description: "Completed secondary education with distinction",
     },
 ];
 

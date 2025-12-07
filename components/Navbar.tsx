@@ -18,13 +18,14 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { href: "#home", label: "Home" },
-    { href: "#about", label: "About" },
-    { href: "#education", label: "Education" },
-    { href: "#projects", label: "Projects" },
-    { href: "#skills", label: "Skills" },
-    { href: "#certificates", label: "Certificates" },
-    { href: "#contact", label: "Contact" },
+    { href: "/#home", label: "Home" },
+    { href: "/#about", label: "About" },
+    { href: "/#education", label: "Education" },
+    { href: "/#projects", label: "Projects" },
+    { href: "/#skills", label: "Skills" },
+    { href: "/#certificates", label: "Certificates" },
+    { href: "/photos", label: "Photos" },
+    { href: "/#contact", label: "Contact" },
   ];
 
   return (

@@ -65,16 +65,26 @@ const allCsProjects: Project[] = [
 ];
 
 const ProjectGrid = ({ projects, showAll }: ProjectGridProps) => {
-  const displayProjects = showAll ? projects : projects.slice(0, 4);
+  const displayProjects = showAll ? projects : projects.slice(0, 8);
   return (
-    <div className="grid md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {displayProjects.map((project) => (
         <Card
           key={project.title}
-          className="group relative glass border-white/5 hover:border-white/20 hover:shadow-[0_0_30px_rgba(102,126,234,0.15)] transition-all duration-500 overflow-hidden"
+          className="group relative glass border-white/5 hover:border-white/20 hover:shadow-[0_0_30px_rgba(102,126,234,0.15)] transition-all duration-500 overflow-hidden aspect-square flex flex-col"
         >
           {/* Subtle gradient accent line */}
           <div className={`absolute top-0 left-0 right-0 h-[1px] ${project.gradient} opacity-50`} />
+
+          {/* Hover Image Overlay */}
+          <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black">
+            <img
+              src={`https://picsum.photos/seed/${project.title}/500/500`}
+              alt={project.title}
+              className="w-full h-full object-cover opacity-80"
+            />
+            {/* Optional overlay text or icon could go here */}
+          </div>
 
           <CardHeader className="pb-3">
             <CardTitle className="text-xl font-semibold group-hover:text-purple-300 transition-colors">
@@ -137,12 +147,12 @@ export default function Projects() {
           </TabsList>
           <TabsContent value="cs" className="mt-0 space-y-8">
             <ProjectGrid projects={allCsProjects} showAll={showAllCs} />
-            {!showAllCs && allCsProjects.length > 4 && (<div className="flex justify-center"><Button onClick={() => setShowAllCs(true)} size="lg" className="gradient-purple text-white hover:opacity-90">Show More Projects ({allCsProjects.length - 4} more)</Button></div>)}
+            {!showAllCs && allCsProjects.length > 8 && (<div className="flex justify-center"><Button onClick={() => setShowAllCs(true)} size="lg" className="gradient-purple text-white hover:opacity-90">Show More Projects ({allCsProjects.length - 8} more)</Button></div>)}
             {showAllCs && (<div className="flex justify-center"><Button onClick={() => setShowAllCs(false)} size="lg" variant="outline">Show Less</Button></div>)}
           </TabsContent>
           <TabsContent value="ece" className="mt-0 space-y-8">
             <ProjectGrid projects={allEceProjects} showAll={showAllEce} />
-            {!showAllEce && allEceProjects.length > 4 && (<div className="flex justify-center"><Button onClick={() => setShowAllEce(true)} size="lg" className="gradient-purple text-white hover:opacity-90">Show More Projects ({allEceProjects.length - 4} more)</Button></div>)}
+            {!showAllEce && allEceProjects.length > 8 && (<div className="flex justify-center"><Button onClick={() => setShowAllEce(true)} size="lg" className="gradient-purple text-white hover:opacity-90">Show More Projects ({allEceProjects.length - 8} more)</Button></div>)}
             {showAllEce && (<div className="flex justify-center"><Button onClick={() => setShowAllEce(false)} size="lg" variant="outline">Show Less</Button></div>)}
           </TabsContent>
         </Tabs>
